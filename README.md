@@ -10,22 +10,22 @@ init zalando-operator submodules from [official repository](https://github.com/z
 git submodule init
 ```
 
-# setup K8S cluster
+# setup k8s cluster on localhost
 
 During this tutorial we will be using [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) to provision k8s cluster on `docker`, with following configuration:
 - 1 master node
 - 3 worker nodes
 
-## 1.1. verify if any cluster is available:
+verify if any cluster is available
 ```zsh
 kind get clusters
 ```
-## 1.2. create cluster
+create k8s cluster
 ```bash
 kind create cluster --config manifests/kind/cluster.yml
 ```
 
-## 1.3. verify if `kubectl` context is switched to proper cluster
+verify if `kubectl` context is switched to proper cluster
 
 ```zsh
 $ kubectl get nodes                                            
@@ -36,9 +36,9 @@ kind-worker2         Ready    <none>                 25s   v1.21.1
 kind-worker3         Ready    <none>                 25s   v1.21.1
 ```
 
-# zalando-operator setup
+# setup zalando-operator
 
-### provision PostgreSQL operator
+## provision PostgreSQL operator
 
 ```bash
 cd postgres-operator
@@ -62,7 +62,7 @@ postgres-operator-55b8549cff-84gp7   1/1     Running   0          118s
 kubectl apply -f postgres-operator/ui/manifests/
 ```
 
-verify if its running:
+verify if its running
 ```bash
 kubectl get pod -l name=postgres-operator-ui
 ```
@@ -135,26 +135,28 @@ verify if the data was replicated to the slave cluster
 ```bash
 kubectl port-forward acid-first-1 6433:5432 -n default
 ```
-select values 
+and then inspect the values
 ```sql
 \c ssu_operator_labs 
 SELECT * FROM ssu_tab;
 ```
 
-## upgrade an existing PostgreSQL cluster
+## upgrade an existing PostgreSQL cluster version
 
 open another terminal session and watch pods status
-```bash
+```
 kubectl get pods  -w 
 ```
-and wait till all pods will be in running state again
 
 change the `spec.postgresql.version` from `12` to `13` in `postgres/v12-cluster.yml` (example in `postgres/v13-cluster.yml`) and apply edited config:
 
 ```bash
 kubectl apply -f manifests/postgres-13-cluster.yml 
 ```
-### verify the upgrade process on master node
+
+and **wait** till all pods will be in running state again
+
+ then verify the version on master node
 
 ```sql
 SELECT version();
