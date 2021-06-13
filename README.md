@@ -161,3 +161,28 @@ and **wait** till all pods will be in running state again
 ```sql
 SELECT version();
 ```
+
+# failover
+
+in this example we will try If our setup if capable of handling failover
+
+get the current master name
+```zsh
+$ kubectl get pods -o jsonpath={.items..metadata.name} -l application=spilo,cluster-name=acid-first,spilo-role=master -n default
+acid-first-2
+```
+
+delete the master instance
+```zsh
+$ kubectl delete pod acid-first-2 
+pod "acid-first-2" deleted
+```
+
+check if new master will be elected
+
+```zsh
+$ kubectl get pods -o jsonpath={.items..metadata.name} -l application=spilo,cluster-name=acid-first,spilo-role=master -n default
+acid-first-0
+```
+
+then check which one will be switched to readonly mode and if current master is writeable
